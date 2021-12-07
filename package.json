@@ -1,0 +1,18 @@
+{
+  "name": "auth_jwt",
+  "version": "1.0.0",
+  "description": "Classes and dependencies to authenticate with Softalleys MSAA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "auth",
+    "jwt",
+    "msaa",
+    "softalleys",
+    "package"
+  ],
+  "author": "Matthew Montes de Oca",
+  "license": "ISC"
+}
