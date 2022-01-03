@@ -1,6 +1,5 @@
 
 // store/auth.js
-export var service = 'account'
 
 // reusable aliases for mutations
 export const AUTH_MUTATIONS = {
@@ -28,6 +27,9 @@ export const getters = {
   isAuthenticated: (state) => {
     return state.accessToken && state.accessToken !== ''
   },
+  bearerAuthToken() {
+    return 'Bearer ' + state.accessToken
+  }
 }
 
 
@@ -77,7 +79,7 @@ export const mutations = {
 
 
 function isValidToken(token) {
-  
+
   try {
     const jwt = token.split('.')
     if (jwt.length !== 3) return false;
@@ -97,7 +99,7 @@ function redirectToAuth(redirect) {
   const localUrl = window.location.href
   const urlSearchParams = {
     continueTo: localUrl,
-    service
+    service: (process.env.serviceKey || 'account')
   }
 
   const url = process.env.authenticationRoute  +'/login/?'+ (new URLSearchParams(urlSearchParams))
