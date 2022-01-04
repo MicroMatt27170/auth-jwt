@@ -15,10 +15,10 @@ context.$axios.interceptors.response.use(res => res, async (error) => {
     await context.store.dispatch('auth/redirectToAuthentication')
   }
 
-  if (error.isAxiosError && error.message === "Network Error") {
-    context.store.commit('auth/SET_PAYLOAD', { accessToken: null })
-    await context.store.dispatch('auth/redirectToAuthentication')
-  }
+  // if (error.isAxiosError && error.message === "Network Error") {
+  //   context.store.commit('auth/SET_PAYLOAD', { accessToken: null })
+  //   await context.store.dispatch('auth/redirectToAuthentication')
+  // }
 
   return Promise.reject(error)
 });
