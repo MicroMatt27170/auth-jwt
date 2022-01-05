@@ -169,6 +169,7 @@ export const actions = {
 
   // logout the user
   async logout ({ commit, state }) {
+    const { accessToken } = state
     await this.$axios.post(process.env.authenticationRoute+'/api/auth/logout',
     { access_token: accessToken }).then(res => {
       // commit(AUTH_MUTATIONS.LOGOUT)
