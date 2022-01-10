@@ -19,6 +19,7 @@ export const state = () => ({
     username: '',
     name: ''
   },
+  services: [],
   actions: []
 })
 
@@ -44,9 +45,11 @@ export const mutations = {
     accessToken,
     createdAt = null,
     expirationAt = null,
-    actions = [] }) {
+    actions = [],
+     services = [] }) {
     state.accessToken = accessToken
     state.actions = actions
+    state.services = services
 
     if (createdAt) {
       try {
@@ -161,7 +164,8 @@ export const actions = {
         accessToken: res.data.access_token,
         createdAt: res.data.created_at,
         expirationAt: res.data.expiration_at,
-        actions: res.data.actions
+        actions: res.data.actions,
+        services: res.data.services
       })
       commit(AUTH_MUTATIONS.SET_USER, { user: res.data.user })
     })
