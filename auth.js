@@ -170,8 +170,8 @@ export const actions = {
         expirationAt: res.data.expiration_at
       })
       commit(AUTH_MUTATIONS.SET_USER, { user: res.data.user })
-      commit(AUTH_MUTATIONS.SET_SERVICES, { user: res.data.services })
-      commit(AUTH_MUTATIONS.SET_ACTIONS, { user: res.data.actions })
+      commit(AUTH_MUTATIONS.SET_SERVICES, { services: res.data.services })
+      commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
     })
   },
