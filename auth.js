@@ -6,6 +6,8 @@ export const AUTH_MUTATIONS = {
   SET_USER: 'SET_USER',
   SET_PAYLOAD: 'SET_PAYLOAD',
   LOGOUT: 'LOGOUT',
+  SET_ACTIONS: 'SET_ACTIONS',
+  SET_SERVICES: 'SET_SERVICES'
 }
 
 export const state = () => ({
@@ -39,17 +41,19 @@ export const mutations = {
   [AUTH_MUTATIONS.SET_USER] (state, { user }) {
     state.user = user
   },
+  [AUTH_MUTATIONS.SET_ACTIONS] (state, { actions }) {
+    state.actions = actions
+  },
+  [AUTH_MUTATIONS.SET_SERVICES] (state, { services }) {
+    state.services = services
+  },
 
   // store new or updated token fields in the state
   [AUTH_MUTATIONS.SET_PAYLOAD] (state, {
     accessToken,
     createdAt = null,
-    expirationAt = null,
-    actions = [],
-     services = [] }) {
+    expirationAt = null}) {
     state.accessToken = accessToken
-    state.actions = actions
-    state.services = services
 
     if (createdAt) {
       try {
@@ -163,11 +167,12 @@ export const actions = {
       commit(AUTH_MUTATIONS.SET_PAYLOAD, {
         accessToken: res.data.access_token,
         createdAt: res.data.created_at,
-        expirationAt: res.data.expiration_at,
-        actions: res.data.actions,
-        services: res.data.services
+        expirationAt: res.data.expiration_at
       })
       commit(AUTH_MUTATIONS.SET_USER, { user: res.data.user })
+      commit(AUTH_MUTATIONS.SET_SERVICES, { user: res.data.services })
+      commit(AUTH_MUTATIONS.SET_ACTIONS, { user: res.data.actions })
+
     })
   },
 
