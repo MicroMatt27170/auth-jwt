@@ -99,7 +99,7 @@ function redirectToAuth(redirect) {
   const localUrl = window.location.href
   const urlSearchParams = {
     continueTo: localUrl,
-    service: (process.env.serviceKey || 'account')
+    service: (process.env.serviceKey || '')
   }
 
   const url = process.env.authenticationRoute  +'/login/?'+ (new URLSearchParams(urlSearchParams))
