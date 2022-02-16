@@ -113,44 +113,57 @@ function redirectToAuth(redirect) {
   redirect(url)
 }
 
+function containsLocalStorageJWT() {
+  const token = localStorage.getItem('jwt')
+    commit('SET_PAYLOAD', { accessToken: token })
+
+    let ext = this.state.auth.token.expirationAt
+
+    if (ext) {
+      ext = new Date(ext.getTime())
+      ext = ext.setMinutes(ext.getMinutes() - 15)
+      let today = new Date()
+      today = today.getTime()
+
+      if (today > ext) {
+        dispatch('refresh')
+      }
+
+    } else {
+      dispatch('refresh')
+    }
+}
+
+
+function containsAccessTokenQueryJWT () {
+  if (!isValidToken(this.app.context.route.query.access_token)) {
+    if (localStorage.getItem('jwt')) {
+      containsLocalStorageJWT();
+    } else {
+      redirectToAuth(this.app.context.redirect)
+    }
+  } else {
+    commit('SET_PAYLOAD', { accessToken: this.app.context.route.query.access_token })
+    dispatch('refresh')
+
+    const query = Object.assign({}, this.app.context.route.query);
+    delete query.access_token;
+    this.$router.replace({ query });
+  }
+}
+
 export const actions = {
   redirectToAuthentication() {
     redirectToAuth(this.app.context.redirect)
   },
   requestLogin({ commit, dispatch }) {
+
     if (process.client) {
-      if (localStorage.getItem('jwt')) {
-        const token = localStorage.getItem('jwt')
-        commit('SET_PAYLOAD', { accessToken: token })
-
-        let ext = this.state.auth.token.expirationAt
-
-        if (ext) {
-          ext = new Date(ext.getTime())
-          ext = ext.setMinutes(ext.getMinutes() - 15)
-          let today = new Date()
-          today = today.getTime()
-
-          if (today > ext) {
-            dispatch('refresh')
-          }
-
-        } else {
-          dispatch('refresh')
-        }
-
+      if (this.app.context.route.query.access_token) {
+        containsAccessTokenQueryJWT();
       }
-      else if (this.app.context.route.query.access_token) {
-        if (!isValidToken(this.app.context.route.query.access_token)) {
-          redirectToAuth(this.app.context.redirect)
-        } else {
-          commit('SET_PAYLOAD', { accessToken: this.app.context.route.query.access_token })
-          dispatch('refresh')
-
-          const query = Object.assign({}, this.app.context.route.query);
-          delete query.access_token;
-          this.$router.replace({ query });
-        }
+      else if (localStorage.getItem('jwt')) {
+        containsLocalStorageJWT();
       } else {
         redirectToAuth(this.app.context.redirect)
       }
