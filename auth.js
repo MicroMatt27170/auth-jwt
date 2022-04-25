@@ -76,10 +76,7 @@ export const mutations = {
 
   // clear our the state, essentially logging out the user
   [AUTH_MUTATIONS.LOGOUT] (state) {
-    state.id = null
-    state.username = null
     state.accessToken = null
-    state.refreshToken = null
   },
 }
 
