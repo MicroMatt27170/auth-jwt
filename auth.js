@@ -24,7 +24,11 @@ export const state = () => ({
     actions: [],
     signalR: {
         authListen: false,
-        authConnection: null
+        authConnection: null,
+        notificationListen: false,
+        notificationConnection: null,
+        eventListen: false,
+        eventConnection: null
     }
 })
 
@@ -161,7 +165,7 @@ export const actions = {
 
                 const query = Object.assign({}, _this.app.context.route.query);
                 delete query.access_token;
-                this.$router.replace({ query });
+                _this.$router.replace({ query });
             }
         }
 
@@ -210,7 +214,7 @@ export const actions = {
         const signalR = require('@microsoft/signalr')
 
         let connection = new signalR.HubConnectionBuilder()
-            .withUrl(route+'/hubs/authentication', {
+            .withUrl(route + '/hubs/authentication', {
                 accessTokenFactory: () => 'Bearer ' + state.accessToken,
 
             })
@@ -218,7 +222,7 @@ export const actions = {
             .build()
 
         await connection.start()
-        
+
         state.signalR.authConnection = connection
 
         //Init Listen
