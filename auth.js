@@ -1,4 +1,5 @@
 // store/auth.js
+export var connection = null;
 
 // reusable aliases for mutations
 export const AUTH_MUTATIONS = {
@@ -6,7 +7,8 @@ export const AUTH_MUTATIONS = {
     SET_PAYLOAD: 'SET_PAYLOAD',
     LOGOUT: 'LOGOUT',
     SET_ACTIONS: 'SET_ACTIONS',
-    SET_SERVICES: 'SET_SERVICES'
+    SET_SERVICES: 'SET_SERVICES',
+    SET_THUNDERFLASH_CONNECTION: 'SET_THUNDERFLASH_CONNECTION'
 }
 
 export const state = () => ({
@@ -23,8 +25,7 @@ export const state = () => ({
     services: [],
     actions: [],
     signalR: {
-      connection: null,
-      withSignalR: process.env.thunderflashRoute != null
+        withSignalR: process.env.thunderflashRoute != null
     }
 })
 
@@ -50,7 +51,9 @@ export const mutations = {
     [AUTH_MUTATIONS.SET_SERVICES](state, { services }) {
         state.services = services
     },
-
+    [AUTH_MUTATIONS.SET_THUNDERFLASH_CONNECTION](state, { conn }) {
+        connection = conn
+    },
     // store new or updated token fields in the state
     [AUTH_MUTATIONS.SET_PAYLOAD](state, {
         accessToken,
@@ -182,7 +185,7 @@ export const actions = {
         const { accessToken } = state
 
         // make an API call using the refresh token to generate a new access token
-        await this.$axios.post(process.env.authenticationRoute + '/api/auth/refresh', { access_token: accessToken }).then(res => {
+        await this.$axios.post(process.env.authenticationRoute + '/api/auth/refresh', { access_token: accessToken }).then(async res => {
             commit(AUTH_MUTATIONS.SET_PAYLOAD, {
                 accessToken: res.data.access_token,
                 createdAt: res.data.created_at,
@@ -192,10 +195,10 @@ export const actions = {
             commit(AUTH_MUTATIONS.SET_SERVICES, { services: res.data.services })
             commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
-            if (state.signalR.connection) {
-                dispatch('refreshSignalRToken', {commit, state})
+            if (connection) {
+                await dispatch('refreshSignalRToken', {commit, state})
             } else {
-                dispatch('initSignalR', {commit, state})
+                await dispatch('initSignalR', {commit, state})
             }
         })
     },
@@ -217,7 +220,7 @@ export const actions = {
 
         let connection = new signalR.HubConnectionBuilder()
             .withUrl(route + '/hubs/authentication', {
-                accessTokenFactory: () => 'Bearer ' + state.accessToken,
+                accessTokenFactory: () => state.accessToken,
 
             })
             .withAutomaticReconnect([0, 2000, 5000, 15000, 60000, 300000, null])
@@ -227,8 +230,7 @@ export const actions = {
 
         console.log('connection', connection)
 
-        state.signalR.connection = connection
-
+        commit(AUTH_MUTATIONS.SET_THUNDERFLASH_CONNECTION, { conn: connection })
         //Init Listen
 
         connection.on('OnUpdateJwt', (success, msg) => {
@@ -242,7 +244,7 @@ export const actions = {
         })
     },
     async refreshSignalRToken({ commit, state }) {
-        const res = await state.signalR.connection.invoke('UpdateJwt', state.accessToken)
+        const res = await connection.invoke('UpdateJwt', state.accessToken)
 
         console.log('refresh signalr connection', res)
     }
