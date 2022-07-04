@@ -178,10 +178,9 @@ export const actions = {
     },
 
     // given the current refresh token, refresh the user's access token to prevent expiry
-    async refresh({ commit, state }) {
+    async refresh({ commit, state, dispatch }) {
         const { accessToken } = state
 
-        const _this = this;
         // make an API call using the refresh token to generate a new access token
         await this.$axios.post(process.env.authenticationRoute + '/api/auth/refresh', { access_token: accessToken }).then(res => {
             commit(AUTH_MUTATIONS.SET_PAYLOAD, {
@@ -194,9 +193,9 @@ export const actions = {
             commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
             if (state.signalR.connection) {
-                _this.refreshSignalRToken({commit, state})
+                dispatch('initSignalR', {commit, state})
             } else {
-                _this.initSignalR({commit, state})
+                dispatch('refreshSignalRToken', {commit, state})
             }
         })
     },
