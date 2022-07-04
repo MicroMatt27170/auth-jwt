@@ -1,6 +1,6 @@
 {
   "name": "@matthew27170/auth-jwt",
-  "version": "1.1.0.1",
+  "version": "1.1.1",
   "private": false,
   "description": "Classes and dependencies to authenticate with Softalleys MSAA",
   "main": "index.js",
