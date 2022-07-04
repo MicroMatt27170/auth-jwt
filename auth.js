@@ -193,9 +193,9 @@ export const actions = {
             commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
             if (state.signalR.connection) {
-                dispatch('initSignalR', {commit, state})
-            } else {
                 dispatch('refreshSignalRToken', {commit, state})
+            } else {
+                dispatch('initSignalR', {commit, state})
             }
         })
     },
