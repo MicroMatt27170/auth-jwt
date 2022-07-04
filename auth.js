@@ -23,12 +23,8 @@ export const state = () => ({
     services: [],
     actions: [],
     signalR: {
-        authListen: false,
-        authConnection: null,
-        notificationListen: false,
-        notificationConnection: null,
-        eventListen: false,
-        eventConnection: null
+      connection: null,
+      withSignalR: process.env.thunderflashRoute != null
     }
 })
 
@@ -80,6 +76,7 @@ export const mutations = {
         if (accessToken) {
             localStorage.setItem('jwt', accessToken)
             this.$axios.defaults.headers.common.Authorization = 'Bearer ' + accessToken
+
         } else {
             localStorage.removeItem('jwt')
             delete this.$axios.defaults.headers.common.Authorization
@@ -184,6 +181,7 @@ export const actions = {
     async refresh({ commit, state }) {
         const { accessToken } = state
 
+        const _this = this;
         // make an API call using the refresh token to generate a new access token
         await this.$axios.post(process.env.authenticationRoute + '/api/auth/refresh', { access_token: accessToken }).then(res => {
             commit(AUTH_MUTATIONS.SET_PAYLOAD, {
@@ -195,6 +193,11 @@ export const actions = {
             commit(AUTH_MUTATIONS.SET_SERVICES, { services: res.data.services })
             commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
+            if (state.signalR.connection) {
+                _this.refreshSignalRToken({commit, state})
+            } else {
+                _this.initSignalR({commit, state})
+            }
         })
     },
 
@@ -218,17 +221,19 @@ export const actions = {
                 accessTokenFactory: () => 'Bearer ' + state.accessToken,
 
             })
-            .withAutomaticReconnect([0, 2000, 5000, 15000, 60000, null])
+            .withAutomaticReconnect([0, 2000, 5000, 15000, 60000, 300000, null])
             .build()
 
         await connection.start()
 
-        state.signalR.authConnection = connection
+        console.log('connection', connection)
+
+        state.signalR.connection = connection
 
         //Init Listen
 
         connection.on('OnUpdateJwt', (success, msg) => {
-            console.log('on update jwt')
+            console.log('on update connection jwt')
 
         })
 
@@ -236,5 +241,10 @@ export const actions = {
             console.log('signalr auth on logout')
             commit('logout')
         })
+    },
+    async refreshSignalRToken({ commit, state }) {
+        const res = await state.signalR.connection.invoke('UpdateJwt', state.accessToken)
+
+        console.log('refresh signalr connection', res)
     }
 }
