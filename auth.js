@@ -195,10 +195,15 @@ export const actions = {
             commit(AUTH_MUTATIONS.SET_SERVICES, { services: res.data.services })
             commit(AUTH_MUTATIONS.SET_ACTIONS, { actions: res.data.actions })
 
-            if (connection) {
-                await dispatch('refreshSignalRToken', {commit, state})
-            } else {
-                await dispatch('initSignalR', {commit, state})
+            try {
+                if (connection) {
+                    await dispatch('refreshSignalRToken', {commit, state})
+                } else if (process.env.thunderflashRoute != null && process.env.thunderflashRoute != undefined) {
+                    await dispatch('initSignalR', {commit, state})
+                }
+            } catch (e) {
+                console.log('error thunderflash')
+                console.log(e)
             }
         })
     },
