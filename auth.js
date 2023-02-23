@@ -114,7 +114,7 @@ function isValidToken(token) {
 function redirectToAuth(redirect) {
     const localUrl = window.location.href
     const urlSearchParams = {
-        continueTo: localUrl,
+        continueTo: encodeURIComponent(localUrl),
         service: (process.env.serviceKey || '')
     }
 
